@@ -30,18 +30,135 @@ defensivetechlist<-c(67,65,62,87,87,87,82,36,11,11,11,11,13,17,12,16,30,17,40,3,
 
 #Experiment 1: Q vs Q (naked lv1, one with fewer starting troops but better techs) - Offensive formation is Circular defensive is Inv.Def
 #8:22
-dam<-c(122,194,rc294,174,pa10,pa249,r100,97,220,139,pa16c,pa184)
-crit<-c(0,0,1,0,0,0,0,0,0,0,1,0)
-retal<-c(0,0,1,0,0,0,1,0,0,0,0,0)
-omorale<-c(0,34,68,68,102,0,0,34,68,102,0)
-skill<-c(0,0,0,0,1,1,0,0,0,0,1,1)
-troopstart<-c(1340,388/1530)
+exp1<-data.frame(dam=c(122,194,294,174,10,249,100,97,220,139,16,184),
+crit=c(0,0,1,0,0,0,0,0,0,0,1,0),
+retal=c(0,0,1,0,0,0,1,0,0,0,0,0),
+omorale=c(0,34,68,68,102,0,0,34,68,102,0,32),
+skill=c(0,0,0,0,1,1,0,0,0,0,1,1),
+otroopmax=c(rep(1340,12)),
+dtroopmax=c(rep(1530,12)),
+otroopcurrent=c(rep(1340,12)),
+dtroopcurrent=c(rep(388,12)),
+turn=c(1,2,2,2,1,2,2,2,1,2,1,2),
+dform=c(rep("Invin",12)),
+oform=c(rep("Circular",12)),
+OffName="Quintus",
+DefName="Quintus"
+)
+fixformation<-function(df){
+  df$oform<-as.character(df$oform)
+  df$dform<-as.character(df$dform)
+  df$oform[df$turn==1]<-df$oform[1]
+  df$dform[df$turn==1]<-df$dform[1]
+  df$oform[df$turn==2]<-df$dform[1]
+  df$dform[df$turn==2]<-df$oform[1]
+  return(df)  }
+
+# d started at ,388/1530)
+#things that aren't relevant from MergedFinalOutput are removed and put into HeroDamageStats
+#derive current troops
+HeroStats<-function(df){
+  #Don't want any extraneous columns merged in from HeroDamageStats...Just the right ones
+  #also want it to be able to handle 2 diff guys!
+  #don't really care that it's going to fail on awakenings though.
+df<-cbind(df,HeroDamageStats[c(rep(grep(df$OffName[1],HeroDamageStats$DispName)[1],length(df$dam))),c(2,3,4,8,9,10,11,12,13,14,15,16,18,19,20,21,22,23)])
+df$oLeaderShip<-df$LeaderShip
+df$oBrave<-df$Brave
+df$oIntellect<-df$Intellect
+df$dLeaderShip<-df$LeaderShip
+df$dBrave<-df$Brave
+df$dIntellect<-df$Intellect
+#start by using the offensive hero's stats for everything
+df[colnames(HeroDamageStats[c(2,3,4,8,9,10,11,13,15,18,20,22)])][df$turn==2,]<-HeroDamageStats[grep(df$DefName[1],HeroDamageStats$DispName)[1],c(2,3,4,8,9,10,11,13,15,18,20,22)]
+#set the defensive stats
+df$oLeaderShip[df$turn==2]<-df$LeaderShip[df$turn==2]
+df$oBrave[df$turn==2]<-df$Brave[df$turn==2]
+df$oIntellect[df$turn==2]<-df$Intellect[df$turn==2] #sets the offensive stats properly
+df$dLeaderShip[df$turn==1]<-df$LeaderShip[df$turn==2][1]
+df$dBrave[df$turn==1]<-df$Brave[df$turn==2][1]
+df$dIntellect[df$turn==1]<-df$Intellect[df$turn==2][1]
+#set the offensive stats to the defensive hero's off stats if turn==2
+df[colnames(HeroDamageStats[c(2,3,4,12,14,16,19,21,23)])][df$turn==1,]<-HeroDamageStats[grep(df$DefName[1],HeroDamageStats$DispName)[1],c(2,3,4,12,14,16,19,21,23)]
+#set the defensive stats to the defensive hero's def stats if turn==1
+
+#this is failing because it's overwriting 2,3,4 when i really want 2 copies of those stats.
+
+return(df)}
+
+currenttroops<-function(df){
+for(I in 2:length(df$dam)){
+  if(df$turn[(I-1)]==1){
+    df$dtroopcurrent[I]<-df$dtroopcurrent[I-1]-df$dam[I-1]
+    df$otroopcurrent[I]<-df$otroopcurrent[I-1]
+  }#then remove troops from defense and copy previous offense
+  if(df$turn[(I-1)]==2){
+    df$dtroopcurrent[I]<-df$dtroopcurrent[I-1]
+    df$otroopcurrent[I]<-df$otroopcurrent[I-1]-df$dam[I-1]
+  }
+}
+return(df)}
+currentmorale<-function(df){
+  #moralestarts at 0
+  df$moraleone<-0
+  df$moraletwo<-0
+  for(I in 2:length(df$dam)){
+    if(df$skill[I-1]==0){
+      if(df$retal[I-1]!=1){
+      df$moraletwo[I]<-df$moraletwo[I-1]+34
+      df$moraleone[I]<-df$moraleone[I-1]+34
+      }
+      else{df$moraleone[I]<-df$moraleone[I-1]
+           df$moraletwo[I]<-df$moraletwo[I-1]}
+    #raise morale for players (both get morale on hits - if they have it, and the lack of it is not yet implemented/considered)
+    } #no skill, morale will go up somewhere (barring evades which i am not considering yet)
+    if(df$skill[I-1]==1){
+      if(df$turn[I-1]==1){df$moraleone[I]<-0;df$moraletwo[I]<-df$moraletwo[I-1]}
+      if(df$turn[I-1]==2){df$moraletwo[I]<-0;df$moraleone[I]<-df$moraleone[I-1]}
+    }
+}
+return(df)}
+#derive current morale
+
+handletechnology<-function(df,techlist,dtechlist){
+  df$NormalAttack[df$turn==1]<-df$NormalAttack[df$turn==1]+(10*techlist[1])
+  df$NormalDefence[df$turn==2]<-df$NormalDefence[df$turn==2]+(7*techlist[4])
+  df$SkillAttack[df$turn==1]<-df$SkillAttack[df$turn==1]+(25*techlist[3])
+  df$SkillDefence[df$turn==2]<-df$SkillDefence[df$turn==2]+(15*techlist[5])
+  df$MagicAttack[df$turn==1]<-df$MagicAttack[df$turn==1]+(35*techlist[6])
+  df$MagicDefence[df$turn==2]<-df$MagicDefence[df$turn==2]+(16*techlist[7])
+  
+  df$NormalAttack[df$turn==2]<-df$NormalAttack[df$turn==2]+(10*dtechlist[1])
+  df$NormalDefence[df$turn==1]<-df$NormalDefence[df$turn==1]+(7*dtechlist[4])
+  df$SkillAttack[df$turn==2]<-df$SkillAttack[df$turn==2]+(25*dtechlist[3])
+  df$SkillDefence[df$turn==1]<-df$SkillDefence[df$turn==1]+(15*dtechlist[5])
+  df$MagicAttack[df$turn==2]<-df$MagicAttack[df$turn==2]+(35*dtechlist[6])
+  df$MagicDefence[df$turn==1]<-df$MagicDefence[df$turn==1]+(16*dtechlist[7])
+  df$formbonus<-0
+  if(df$oform[df$turn==1][1]=="Siege"){
+    df$formbonus[df$turn==1]<-.0075*techlist[10]}
+  if(df$oform[df$turn==2][1]=="Siege"){
+    df$formbonus[df$turn==2]<-.0075*dtechlist[10]}
+  if(df$oform[df$turn==1][1]=="Wedge"){
+    df$formbonus[df$turn==1]<-.0075*techlist[11]}
+  if(df$oform[df$turn==2][1]=="Wedge"){
+    df$formbonus[df$turn==2]<-.0075*dtechlist[11]}
+  if(df$oform[df$turn==1][1]=="Snake"){
+    df$formbonus[df$turn==1]<-.0075*techlist[14]}
+  if(df$oform[df$turn==2][1]=="Snake"){
+    df$formbonus[df$turn==2]<-.0075*dtechlist[14]}
+  if(df$oform[df$turn==1][1]=="Hexagon"){
+    df$formbonus[df$turn==1]<-.0075*techlist[16]}
+  if(df$oform[df$turn==2][1]=="Hexagon"){
+    df$formbonus[df$turn==2]<-.0075*dtechlist[16]}
+  return(df)}
+
 #Experiment 2: Q vs Q (added a 61 normal defense crudeleatherarmor)(8:24)
 c(r61,56,128,83,pa7,pa501,124)
 omorale<-c(0,0,34,68,102,0,0)
 dmorale<-c(0,0,34,68,102,102,0)
 skill<-c(0,0,0,0,1,1,0)
 troopstart<-c(1364,192/1530)
+
 #Experiment 3: Q vs Q (changed defense's formation from guard to skill atk) (8:28)
 dam<-c(55,37,352,57,11,357,201,44,251,179,15,37,223,51,16,222,51,34,224,48,11,195)
 crit<-c(0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0)
