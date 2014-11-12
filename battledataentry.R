@@ -32,19 +32,14 @@ defensivetechlist<-c(67,65,62,87,87,87,82,36,11,11,11,11,13,17,12,16,30,17,39,3,
 #8:22
 exp1<-data.frame(dam=c(122,194,294,174,10,249,100,97,220,139,16,184),
 crit=c(0,0,1,0,0,0,0,0,0,0,1,0),
-retal=c(0,0,1,0,0,0,1,0,0,0,0,0),
-omorale=c(0,34,68,68,102,0,0,34,68,102,0,32),
 skill=c(0,0,0,0,1,1,0,0,0,0,1,1),
-otroopmax=c(rep(1340,12)),
-dtroopmax=c(rep(1530,12)),
+retal=c(0,0,1,0,0,0,1,0,0,0,0,0),olevel=1,dlevel=1,
 turn=c(1,2,2,2,1,2,2,2,1,2,1,2),
-dform=c(rep("Invin",12)),
-oform=c(rep("Circular",12)),
-OffName="Quintus",
-DefName="Quintus"
+otroopmax=c(rep(1340,12)),dtroopmax=c(rep(1530,12)),
+dform=c(rep("Invin",12)),oform=c(rep("Circular",12)),
+OffName="Quintus",DefName="Quintus"
 )
 exp1<-handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp1)),weird = c(1142,0))),offensivetechlist,defensivetechlist)
-
 
 #based on experiment 1, I think that the formula for skill damage is approximately as follows: admittedly there are few cases here.
 #test$EstDam<-(test$SkillAttack-test$SkillDefence)*(1+test$crit)*test$SkillDamage*(0.5+(test$dtroopcurrent/test$dtroopmax))/(1+(test$dmorale/100))*(test$omorale/100)
@@ -52,14 +47,10 @@ exp1<-handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp1))
 #Experiment 2: Q vs Q (added a 61 normal defense crudeleatherarmor)(8:24)
 exp2<-data.frame(dam=c(61,56,128,83,7,501,124),
 crit=c(0,0,0,0,0,0,0),
-retal=c(1,0,0,0,0,0,0),
 skill=c(0,0,0,0,1,1,0),
-otroopmax=1364,
-dtroopmax=1530,
-dform="Invin",
-oform="Circular",
-OffName="Quintus",
-DefName="Quintus")
+retal=c(1,0,0,0,0,0,0),olevel=1,dlevel=1,
+turn=c(2,2,1,2,1,2,1),
+otroopmax=1364,dtroopmax=1530,oform="Circular",dform="Invin",OffName="Quintus",DefName="Quintus")
 exp2<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp2)),weird=c(1338,0))),offensivetechlist,defensivetechlist),Aggrogearlist = c(0,61,0,0,0,0),Defendergearlist = c(0,0,0,0,0,0,0))
 #c(r61,56,128,83,pa7,pa501,124)
 #omorale<-c(0,0,34,68,102,0,0)
@@ -67,71 +58,95 @@ exp2<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroS
 #skill<-c(0,0,0,0,1,1,0)
 #troopstart<-c(1364,192/1530)
 
-#Experiment 3: Q vs Q (changed defense's formation from guard to skill atk) (8:28)
-exp3<-data.frame(dam=c(55,37,352,57,11,357,201,44,251,179,15,37,223,51,16,222,51,34,224,48,11,195)
-crit=c(0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0),
-retal=c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0),
-skill=c(0,0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,1,1),
-otroopmax=1364,
-dtroopmax=1530,
-oform="Circular",
-dform="Wedge",
-OffName="Quintus",
-DefName="Quintus")
-exp3<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp3)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(0,61,0,0,0,0),Defendergearlist = c(0,0,0,0,0,0,0))
 
-#Experiment 4: repeat ( still skill atk form) 8:29
+exp3<-data.frame(dam=c(55,37,352,57,11,357,201,44,251,179,15,37,223,51,16,222,51,34,224,48,11,195),
+crit=c(0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0),
+skill=c(0,0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,1,1),
+retal=c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0),olevel=1,dlevel=1,
+turn= c(2,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,2,1,1,1,1,1),
+otroopmax=1364,dtroopmax=1530,oform="Circular",dform="Invin",OffName="Quintus",DefName="Quintus")
+exp3<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp3)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(0,61,0,0,0,0),Defendergearlist = c(0,0,0,0,0,0,0))
+#Experiment 3: Q vs Q (changed defense's formation from guard to skill atk) (8:28)
 #c268,48,241,pa224,pa14,60c,330c,59,pa10,pa277,181,51,340,pa224,pa18c,c58,176
 exp4<-data.frame(dam=c(268,48,241,224,14,60,330,59,10,277,181,51,340,224,18,58,176),
 crit=c(1,0,0,0,0,1,1,0,0,0,0,0,0,0,1,1,0),
-retal=0,
 skill=c(0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0),
-otroopmax=1364,
-dtroopmax=1530,
-oform="Circular",
-dform="Wedge",
-OffName="Quintus",
-DefName="Quintus")
+retal=0,olevel=1,dlevel=1,turn=c(1:2),
+otroopmax=1364,dtroopmax=1530,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Quintus")
 exp4<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp4)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(0,61,0,0,0,0),Defendergearlist = c(0,0,0,0,0,0,0))
 
 #Experiment : Q vs O ( 8:33)
 #exp5<-data.frame(dam=c(142,51,223,47,pa4,61,177,54,pa3,58,159,54,pa3,60,c235,56,pa3,61,243c,60,pa3,63,c222,58,pa3,64,139)
+
 exp5<-data.frame(dam=c(142,51,223,47,4,61,177,54,3,58,159,54,3,60,235,56,3,61,243,60,3,63,222,58,3,64,139),
 crit<-c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0),
 skill<-c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0),
-retal=0,
-otroopmax=1364,
-dtroopmax=1530,
-oform="Circular",
-dform="Wedge",
-OffName="Quintus",
-DefName="Oenomaus")
+retal=0,olevel=1,dlevel=1,turn=c(1:2),
+otroopmax=1364,dtroopmax=1530,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Oenomaus")
+
 exp5<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp5)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(0,61,0,0,0,0),Defendergearlist = c(0,0,0,0,0,0,0))
 #Experiment 5: Q vs O ( added a lv 1 21 atk sword to Q) 8:38
-c(154,51,352c,49,pa4,60,166,55,pa3,65,169,56,pa3,65,256c,58,pa4c,66,152,60,pa3,64,153,60,pa3,67,214c)
-crit<-c(0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1)
-skill<-c(0,0,0,01,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0)
-troopstart<-c(1368,1530)
+#c(154,51,352c,49,pa4,60,166,55,pa3,65,169,56,pa3,65,256c,58,pa4c,66,152,60,pa3,64,153,60,pa3,67,214c)
+exp6<-data.frame(dam=c(154,51,352,49,4,60,166,55,3,65,169,56,3,65,256,58,4,66,152,60,3,64,153,60,3,67,214),
+crit=c(0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1),
+skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0),
+retal=0,olevel=1,dlevel=1,turn=c(1:2),
+otroopmax=1368,dtroopmax=1530,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Oenomaus")
+
+exp6<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp6)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(21,61,0,0,0,0),Defendergearlist = c(0,0,0,0,0,0))
 #Experiment 6: Q vs O ( added a lv 1 21 atk sword to O) 8:44
-c(147,87,231,81,pa6c,97,186,84,pa4c,90,184,85,pa4,90,184,86)
-(147,87,231,81,pa6c,97,186,84,pa4c,90,184,85,pa4,90,184,86,pa3,94,283c,84,pa4c,91,262c,78,pa3,91,161)
-troopstart<-c(1368,1534)
+exp7<-data.frame(dam=c(147,87,231,81,6,97,186,84,4,90,184,85,4,90,184,86),
+                 crit=c(0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0),
+                 skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0),
+                 retal=0,olevel=1,dlevel=1,turn=c(1:2),
+                 otroopmax=1368,dtroopmax=1534,oform="Circular",dform="Wedge",
+                 OffName="Quintus",DefName="Oenomaus")
+   #c(147,87,231,81,pa6c,97,186,84,pa4c,90,184,85,pa4,90,184,86)
+    #(147,87,231,81,pa6c,97,186,84,pa4c,90,184,85,pa4,90,184,86,pa3,94,283c,84,pa4c,91,262c,78,pa3,91,161)
+#troopstart<-c(1368,1534)
+exp7<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp7)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(21,61,0,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
 #Experiment 7: Q vs O ( raised defensive Strong Stamina from 39 to 40) 8:50
-c(211c,86,219c,77,pa4,99,185,90,pa4,95,271c,91,pa3,99,178,84,pa4c,90,179,82,pa4c,95,164,78,pa4c,84,168)
-troopstart<-c(1368,1534)
+exp8<-data.frame(dam=c(211,86,219,77,4,99,185,90,4,95,271,91,3,99,178,84,4,90,179,82,4,95,164,78,4,84,168),
+                 crit=c(1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0),
+                 skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0),
+                 retal=0,olevel=1,dlevel=1,turn=c(1:2),otroopmax=1368,dtroopmax=1534,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Oenomaus")
 defensivetechlist<-c(67,65,62,87,87,87,82,36,11,11,11,11,13,17,12,16,30,17,40,3,0,0)
+exp8<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp8)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(21,61,0,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+#c(211c,86,219c,77,pa4,99,185,90,pa4,95,271c,91,pa3,99,178,84,pa4c,90,179,82,pa4c,95,164,78,pa4c,84,168)
+#troopstart<-c(1368,1534)
 #Experiment 8: Q vs O ( O level 15 (NewRecr9)) 8:58
-c(187,224,206,189,pa1c,231,279c,199,pa1c,208,197,163,pa1c,165)
-troopstart<-c(1368,1898)
+exp9<-data.frame(dam=c(187,224,206,189,1,231,279,199,1,208,197,163,1,165),
+                 crit=c(0,0,0,0,1,0,1,0,1,0,0,0,1,0),
+                 skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0),
+                 retal=0,olevel=1,dlevel=15,turn=c(1:2),otroopmax=1368,dtroopmax=1898,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Oenomaus")
+exp9<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp9)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(21,61,0,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+
+#                 c(187,224,206,189,pa1c,231,279c,199,pa1c,208,197,163,pa1c,165)troopstart<-c(1368,1898)
+
 #Experiment 9: Q vs O (Q lv 14 (New.Recr.8))8:58b
-c(166,152,259,137,pa10c,157,330c,150,pa6,167,221,143,pa7,155,224,133,pa10c,145,222,125,pa7,132,217,114)
-troopstart<-c(1706,1898)
+exp10<-data.frame(dam=c(166,152,259,137,10,157,330,150,6,167,221,143,7,155,224,133,10,145,222,125,7,132,217,114),
+crit=c(0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0),
+skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0),
+retal=0,olevel=14,dlevel=15,turn=c(1:2),otroopmax=1706,dtroopmax=1898,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Oenomaus")
+exp10<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp10)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(21,61,0,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+
+#c(166,152,259,137,pa10c,157,330c,150,pa6,167,221,143,pa7,155,224,133,pa10c,145,222,125,pa7,132,217,114)troopstart<-c(1706,1898)
 #Experiment 10: Q vs O (Q +41 normal atk (lv 3 sword)) 8:59
-c(168,160,268,144,pa7,162,342c,148,pa6,163,234,141,pa6,152,225,140,pa7,150,230,131,pa6,140,232,121)
-troopstart<-c(1714,1898)
+exp11<-data.frame(dam=c(168,160,268,144,7,162,342,148,6,163,234,141,6,152,225,140,7,150,230,131,6,140,232,121),
+crit=c(0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0),
+retal=0,olevel=14,dlevel=15,turn=c(1:2),otroopmax=1714,dtroopmax=1898,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Oenomaus")
+exp11<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp11)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(41,61,0,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+#c(168,160,268,144,pa7,162,342c,148,pa6,163,234,141,pa6,152,225,140,pa7,150,230,131,pa6,140,232,121)troopstart<-c(1714,1898)
+
 #EXperiment 11: Q vs O (Q +51 normal atk) 9:00
-c(273c,157,399c,155,pa10c,183,c321,164,pa6,173,215,151,pa9c,159,232,140,pa6,145,219,134,pa6,145,215)
-troopstart<-c(1718,1898)
+exp12<-data.frame(dam=c(273,157,399,155,10,183,321,164,6,173,215,151,9,159,232,140,6,145,219,134,6,145,215),
+                  crit= c(1,0,1,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0),
+                  skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0),
+                  retal=0,olevel=14,dlevel=15,turn=c(1:2),otroopmax=1718,dtroopmax=1898,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Oenomaus")
+exp12<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp12)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(51,61,0,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+
+                  #c(273c,157,399c,155,pa10c,183,c321,164,pa6,173,215,151,pa9c,159,232,140,pa6,145,219,134,pa6,145,215)troopstart<-c(1718,1898)
 #Experiment 12: Q vs o (Q lv 15) 9:10
 c(179,145,299,135,pa9,157,229,144,pa8,158,252,136,pa12c,142,252,132,pa8,136,235,118,pa12c,130,220,115,pa10c,128)
 troopstart<-c(1744,1898)
