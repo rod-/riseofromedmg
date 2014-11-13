@@ -71,7 +71,7 @@ exp3<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroS
 exp4<-data.frame(dam=c(268,48,241,224,14,60,330,59,10,277,181,51,340,224,18,58,176),
 crit=c(1,0,0,0,0,1,1,0,0,0,0,0,0,0,1,1,0),
 skill=c(0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0),
-retal=0,olevel=1,dlevel=1,turn=c(1:2),
+retal=0,olevel=1,dlevel=1,turn=c(rep(c(1,2),8),1),
 otroopmax=1364,dtroopmax=1530,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Quintus")
 exp4<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp4)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(0,61,0,0,0,0),Defendergearlist = c(0,0,0,0,0,0,0))
 
@@ -182,7 +182,8 @@ exp17<-data.frame(dam=c(273,133,291,123,84,160,222,143,70,157,228,141,46,153,226
                   retal=0,olevel=18,dlevel=15,turn=c(1:2),otroopmax=1904,dtroopmax=1898)
 exp17<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp17)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(51,61,644,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
 #c(273c,133,291,123,pa84c,160,222,143,pa70c,157,228,141,pa46,153,226,130,pa44,140,221,121,pa45,143,210)troopstart<-c(1904,1898)
-
+majordf<-rbind(exp1,exp2,exp3,exp4,exp5,exp6,exp7,exp8,exp9,exp10,exp11,exp12,exp13,exp14,exp15,exp16,exp17)
+rm(exp1,exp2,exp3,exp4,exp5,exp6,exp7,exp8,exp9,exp10,exp11,exp12,exp13,exp14,exp15,exp16,exp17)
 
 fixformation<-function(df){
   df$oform<-as.character(df$oform)
@@ -302,11 +303,10 @@ handletechnology<-function(df,techlist,dtechlist){
   return(df)}
 handlegear<-function(df,Aggrogearlist,Defendergearlist){
   #input gearlists are simply:  Normal Atk bonus, Normal Defence Bonus, Skill atk bonus, Skill Def Bonus, Magic Atk Bonus, Mag Def Bonus
-df[turn==1,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")]<-t(t(df[turn==1,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")])+c(Aggrogearlist[1],Defendergearlist[2],Aggrogearlist[3],Defendergearlist[4],Aggrogearlist[5],Defendergearlist[6]))
-df[turn==2,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")]<-t(t(df[turn==2,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")])+c(Defendergearlist[1],Aggrogearlist[2],Defendergearlist[3],Aggrogearlist[4],Defendergearlist[5],Aggrogearlist[6]))
+df[df$turn==1,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")]<-t(t(df[df$turn==1,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")])+c(Aggrogearlist[1],Defendergearlist[2],Aggrogearlist[3],Defendergearlist[4],Aggrogearlist[5],Defendergearlist[6]))
+df[df$turn==2,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")]<-t(t(df[df$turn==2,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")])+c(Defendergearlist[1],Aggrogearlist[2],Defendergearlist[3],Aggrogearlist[4],Defendergearlist[5],Aggrogearlist[6]))
 
 return(df)}
   #maybe i'll make it more complicated later but for now i've got to get it started.
   
   
-}
