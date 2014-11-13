@@ -148,20 +148,40 @@ exp12<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(Hero
 
                   #c(273c,157,399c,155,pa10c,183,c321,164,pa6,173,215,151,pa9c,159,232,140,pa6,145,219,134,pa6,145,215)troopstart<-c(1718,1898)
 #Experiment 12: Q vs o (Q lv 15) 9:10
-c(179,145,299,135,pa9,157,229,144,pa8,158,252,136,pa12c,142,252,132,pa8,136,235,118,pa12c,130,220,115,pa10c,128)
-troopstart<-c(1744,1898)
+exp13<-data.frame(dam=c(179,145,299,135,9,157,229,144,8,158,252,136,12,142,252,132,8,136,235,118,12,130,220,115,10,128),
+                  crit=c(0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0),
+                  skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0),
+                  retal=0,olevel=15,dlevel=15,turn=c(1:2),otroopmax=1744,dtroopmax=1898,oform="Circular",dform="Wedge",OffName="Quintus",DefName="Oenomaus")
+exp13<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp13)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(51,61,0,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+#                  c(179,145,299,135,pa9,157,229,144,pa8,158,252,136,pa12c,142,252,132,pa8,136,235,118,pa12c,130,220,115,pa10c,128)troopstart<-c(1744,1898)
 #Experiment 13: Q vs O (q + 341 skill atk (lv6 zebra)) 9:11
-c(174,149,282,126,pa33,164,245,143,pa31,153,240,139,pa46c,155,235,129,pa31,145,230,120,pa28,142,221,114,pa27,122)
-troopstart<-c(1768,1898)
+exp14<-data.frame(dam=c(174,149,282,126,33,164,245,143,31,153,240,139,46,155,235,129,31,145,230,120,28,142,221,114,27,122),
+                  crit= c(0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                  skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0),
+                  retal=0,olevel=15,dlevel=15,turn=c(1:2),otroopmax=1768,dtroopmax=1898)
+exp14<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp14)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(51,61,341,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+#c(174,149,282,126,pa33,164,245,143,pa31,153,240,139,pa46c,155,235,129,pa31,145,230,120,pa28,142,221,114,pa27,122)troopstart<-c(1768,1898)
 #Experiment 14: Q vs O (q + 461 skill atk (lv 11 zebra), lv 16 q (N.R.9) 9:12
-c(188,141,273,125,pa43,163,238,139,pa37,157,354c,141,pa54c,159,234,131,pa51c,149,223,130,pa33,150,298c)
-troopstart<-c(1814,1898)
+exp15<-data.frame(dam=c(188,141,273,125,43,163,238,139,37,157,354,141,54,159,234,131,51,149,223,130,33,150,298),
+                  crit=c(0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1),
+                  skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0),
+                  retal=0,olevel=16,dlevel=15,turn=c(1:2),otroopmax=1814,dtroopmax=1898)
+exp15<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp15)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(51,61,461,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+#c(188,141,273,125,pa43,163,238,139,pa37,157,354c,141,pa54c,159,234,131,pa51c,149,223,130,pa33,150,298c)troopstart<-c(1814,1898)
 #Experiment 16: Q Vs O (q level 17 - N.R.10 644 satk (14greenzebra))  9:40
-c(192,138,297,118,pa57,150,227,139,pa75c,147,228,138,pa47,146,229,130,pa46,140,346c,128,pa42,140,301c)
-troopstart<-c(1878,1898)
+exp16<-data.frame(dam=c(192,138,297,118,57,150,227,139,75,147,228,138,47,146,229,130,46,140,346,128,42,140,301),
+                  crit=c(0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1),
+                  skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0),
+                  retal=0,olevel=17,dlevel=15,turn=c(1:2),otroopmax=1878,dtroopmax=1898)
+exp16<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp16)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(51,61,644,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+#c(192,138,297,118,pa57,150,227,139,pa75c,147,228,138,pa47,146,229,130,pa46,140,346c,128,pa42,140,301c)troopstart<-c(1878,1898)
 #17: level 18 Q 9:40
-c(273c,133,291,123,pa84c,160,222,143,pa70c,157,228,141,pa46,153,226,130,pa44,140,221,121,pa45,143,210)
-troopstart<-c(1904,1898)
+exp17<-data.frame(dam=c(273,133,291,123,84,160,222,143,70,157,228,141,46,153,226,130,44,140,221,121,45,143,210),
+                  crit=c(1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                  skill=c(0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0),
+                  retal=0,olevel=18,dlevel=15,turn=c(1:2),otroopmax=1904,dtroopmax=1898)
+exp17<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(HeroStats(exp17)))),offensivetechlist,defensivetechlist),Aggrogearlist = c(51,61,644,0,0,0),Defendergearlist = c(21,0,0,0,0,0,0))
+#c(273c,133,291,123,pa84c,160,222,143,pa70c,157,228,141,pa46,153,226,130,pa44,140,221,121,pa45,143,210)troopstart<-c(1904,1898)
 
 
 fixformation<-function(df){
