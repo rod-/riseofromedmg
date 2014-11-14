@@ -19,7 +19,7 @@ HeroStats<-function(df){
   #Don't want any extraneous columns merged in from HeroDamageStats...Just the right ones
   #also want it to be able to handle 2 diff guys!
   #don't really care that it's going to fail on awakenings though.
-  df<-cbind(df,HeroDamageStats[c(rep(grep(df$OffName[1],HeroDamageStats$DispName)[1],length(df$dam))),c(2,3,4,8,9,10,11,12,13,14,15,16,18,19,20,21,22,23)])
+  df<-cbind(df,HeroDamageStats[c(rep(grep(df$OffName[1],HeroDamageStats$DispName)[1],length(df$dam))),c(2,3,4,8,9,10,11,12,13,14,15,16,18,19,20,21,22,23,24)])
   df$oLeaderShip<-df$LeaderShip
   df$oBrave<-df$Brave
   df$oIntellect<-df$Intellect
@@ -27,7 +27,7 @@ HeroStats<-function(df){
   df$dBrave<-df$Brave
   df$dIntellect<-df$Intellect
   #start by using the offensive hero's stats for everything
-  df[colnames(HeroDamageStats[c(2,3,4,8,9,10,11,13,15,18,20,22)])][df$turn==2,]<-HeroDamageStats[grep(df$DefName[1],HeroDamageStats$DispName)[1],c(2,3,4,8,9,10,11,13,15,18,20,22)]
+  df[colnames(HeroDamageStats[c(2,3,4,8,9,10,11,13,15,18,20,22,24)])][df$turn==2,]<-HeroDamageStats[grep(df$DefName[1],HeroDamageStats$DispName)[1],c(2,3,4,8,9,10,11,13,15,18,20,22,24)]
   #set the defensive stats
   df$oLeaderShip[df$turn==2]<-df$LeaderShip[df$turn==2]
   df$oBrave[df$turn==2]<-df$Brave[df$turn==2]
@@ -79,9 +79,9 @@ currentmorale<-function(df){
       if(df$turn[I-1]==2){moraletwo[I]<-0;moraleone[I]<-moraleone[I-1]}
     }
   }
-  #if(is.na(df$SkillName[turn==1])){moraleone<-0}
-  #if(is.na(df$SkillName[turn==2])){moraletwo<-0}
-  #Some things don't have skills, but...I don't have a good way to 
+  if(df$isskill[df$turn==1][1]==FALSE){moraleone<-c(rep(0,length(moraleone)))}
+  if(df$isskill[df$turn==2][1]==FALSE){moraletwo<-c(rep(0,length(moraletwo)))}
+  #Some things don't have skills or morale 
   df$omorale<-moraleone
   df$omorale[df$turn==2]<-moraletwo[df$turn==2]
   df$dmorale<-moraletwo
