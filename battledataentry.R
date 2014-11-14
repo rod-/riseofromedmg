@@ -1,4 +1,137 @@
 
+####Additional things that need to be fixed:
+#Some units don't have morale (eg: oenomaus)
+HeroDamageStats$isskill<-!is.na(HeroDamageStats$SkillName)
+#Sometimes morale is being calculated way wrong (There are cases of up to 646 morale...)
+
+
+fixformation<-function(df){
+  df$oform<-as.character(df$oform)
+  df$dform<-as.character(df$dform)
+  df$oform[df$turn==1]<-df$oform[1]
+  df$dform[df$turn==1]<-df$dform[1]
+  df$oform[df$turn==2]<-df$dform[1]
+  df$dform[df$turn==2]<-df$oform[1]
+  return(df)  }
+#things that aren't relevant from MergedFinalOutput are removed and put into HeroDamageStats
+#derive current troops
+HeroStats<-function(df){
+  #Don't want any extraneous columns merged in from HeroDamageStats...Just the right ones
+  #also want it to be able to handle 2 diff guys!
+  #don't really care that it's going to fail on awakenings though.
+  df<-cbind(df,HeroDamageStats[c(rep(grep(df$OffName[1],HeroDamageStats$DispName)[1],length(df$dam))),c(2,3,4,8,9,10,11,12,13,14,15,16,18,19,20,21,22,23)])
+  df$oLeaderShip<-df$LeaderShip
+  df$oBrave<-df$Brave
+  df$oIntellect<-df$Intellect
+  df$dLeaderShip<-df$LeaderShip
+  df$dBrave<-df$Brave
+  df$dIntellect<-df$Intellect
+  #start by using the offensive hero's stats for everything
+  df[colnames(HeroDamageStats[c(2,3,4,8,9,10,11,13,15,18,20,22)])][df$turn==2,]<-HeroDamageStats[grep(df$DefName[1],HeroDamageStats$DispName)[1],c(2,3,4,8,9,10,11,13,15,18,20,22)]
+  #set the defensive stats
+  df$oLeaderShip[df$turn==2]<-df$LeaderShip[df$turn==2]
+  df$oBrave[df$turn==2]<-df$Brave[df$turn==2]
+  df$oIntellect[df$turn==2]<-df$Intellect[df$turn==2] #sets the offensive stats properly
+  df$dLeaderShip[df$turn==1]<-df$LeaderShip[df$turn==2][1]
+  df$dBrave[df$turn==1]<-df$Brave[df$turn==2][1]
+  df$dIntellect[df$turn==1]<-df$Intellect[df$turn==2][1]
+  #set the offensive stats to the defensive hero's off stats if turn==2
+  df[colnames(HeroDamageStats[c(2,3,4,8,12,14,16,19,21,23)])][df$turn==1,]<-HeroDamageStats[grep(df$DefName[1],HeroDamageStats$DispName)[1],c(2,3,4,8,12,14,16,19,21,23)]
+  #set the defensive stats to the defensive hero's def stats if turn==1
+  
+  return(df)}
+currenttroops<-function(df,weird=c(0,0)){
+  #troopsstartatmaxtroops barring anything weird
+  dtroopcurrent<-df$dtroopmax-weird[1]
+  otroopcurrent<-df$otroopmax-weird[2]
+  for(I in 2:length(df$dam)){
+    if(df$turn[(I-1)]==1){
+      dtroopcurrent[I]<-dtroopcurrent[I-1]-df$dam[I-1]
+      otroopcurrent[I]<-otroopcurrent[I-1]
+    }#then remove troops from defense and copy previous offense
+    if(df$turn[(I-1)]==2){
+      dtroopcurrent[I]<-dtroopcurrent[I-1]
+      otroopcurrent[I]<-otroopcurrent[I-1]-df$dam[I-1]
+    }
+  }
+  df$otroopcurrent<-otroopcurrent
+  df$dtroopcurrent<-dtroopcurrent
+  df$otroopcurrent[df$turn==2]<-dtroopcurrent[df$turn==2]
+  df$dtroopcurrent[df$turn==2]<-otroopcurrent[df$turn==2]
+  return(df)}
+#this properly separates "D" and "O" the way i would like for modeling purposes.
+currentmorale<-function(df){
+  #moralestarts at 0
+  moraleone<-rep(0,length(df$dam))
+  moraletwo<-rep(0,length(df$dam))
+  for(I in 2:length(df$dam)){
+    if(df$skill[I-1]==0){
+      if(df$retal[I-1]!=1){
+        moraletwo[I]<-moraletwo[I-1]+34
+        moraleone[I]<-moraleone[I-1]+34
+      }
+      else{moraleone[I]<-moraleone[I-1]
+           moraletwo[I]<-moraletwo[I-1]}
+      #raise morale for players (both get morale on hits - if they have it, and the lack of it is not yet implemented/considered)
+    } #no skill, morale will go up somewhere (barring evades which i am not considering yet)
+    if(df$skill[I-1]==1){
+      if(df$turn[I-1]==1){moraleone[I]<-0;moraletwo[I]<-moraletwo[I-1]}
+      if(df$turn[I-1]==2){moraletwo[I]<-0;moraleone[I]<-moraleone[I-1]}
+    }
+  }
+  #if(is.na(df$SkillName[turn==1])){moraleone<-0}
+  #if(is.na(df$SkillName[turn==2])){moraletwo<-0}
+  #Some things don't have skills, but...I don't have a good way to 
+  df$omorale<-moraleone
+  df$omorale[df$turn==2]<-moraletwo[df$turn==2]
+  df$dmorale<-moraletwo
+  df$dmorale[df$turn==1]<-moraleone[df$turn==1]
+  return(df)}
+#derive current morale
+handletechnology<-function(df,techlist,dtechlist){
+  df$DamageReduction<-0
+  df$NormalAttack[df$turn==1]<-df$NormalAttack[df$turn==1]+(10*techlist[1])
+  df$NormalDefence[df$turn==2]<-df$NormalDefence[df$turn==2]+(7*techlist[4])
+  df$SkillAttack[df$turn==1]<-df$SkillAttack[df$turn==1]+(25*techlist[3])
+  df$SkillDefence[df$turn==2]<-df$SkillDefence[df$turn==2]+(15*techlist[5])
+  df$MagicAttack[df$turn==1]<-df$MagicAttack[df$turn==1]+(35*techlist[6])
+  df$MagicDefence[df$turn==2]<-df$MagicDefence[df$turn==2]+(16*techlist[7])
+  df$NormalAttack[df$turn==2]<-df$NormalAttack[df$turn==2]+(10*dtechlist[1])
+  df$NormalDefence[df$turn==1]<-df$NormalDefence[df$turn==1]+(7*dtechlist[4])
+  df$SkillAttack[df$turn==2]<-df$SkillAttack[df$turn==2]+(25*dtechlist[3])
+  df$SkillDefence[df$turn==1]<-df$SkillDefence[df$turn==1]+(15*dtechlist[5])
+  df$MagicAttack[df$turn==2]<-df$MagicAttack[df$turn==2]+(35*dtechlist[6])
+  df$MagicDefence[df$turn==1]<-df$MagicDefence[df$turn==1]+(16*dtechlist[7])
+  df$DamageReduction[df$turn==1]<-df$DamageReduction[df$turn==1]+(0.0018*dtechlist[11])
+  df$DamageReduction[df$turn==2]<-df$DamageReduction[df$turn==2]+(0.0018*techlist[11])
+  df$formbonus<-0
+  if(df$oform[df$turn==1][1]=="Siege"){
+    df$formbonus[df$turn==1]<-.0075*techlist[10]}
+  if(df$oform[df$turn==2][1]=="Siege"){
+    df$formbonus[df$turn==2]<-.0075*dtechlist[10]}
+  if(df$oform[df$turn==1][1]=="Wedge"){
+    df$formbonus[df$turn==1]<-.0075*techlist[11]}
+  if(df$oform[df$turn==2][1]=="Wedge"){
+    df$formbonus[df$turn==2]<-.0075*dtechlist[11]}
+  if(df$oform[df$turn==1][1]=="Snake"){
+    df$formbonus[df$turn==1]<-.0075*techlist[14]}
+  if(df$oform[df$turn==2][1]=="Snake"){
+    df$formbonus[df$turn==2]<-.0075*dtechlist[14]}
+  if(df$oform[df$turn==1][1]=="Hexagon"){
+    df$formbonus[df$turn==1]<-.0075*techlist[16]}
+  if(df$oform[df$turn==2][1]=="Hexagon"){
+    df$formbonus[df$turn==2]<-.0075*dtechlist[16]}
+  return(df)}
+handlegear<-function(df,Aggrogearlist,Defendergearlist){
+  #input gearlists are simply:  Normal Atk bonus, Normal Defence Bonus, Skill atk bonus, Skill Def Bonus, Magic Atk Bonus, Mag Def Bonus
+  df[df$turn==1,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")]<-t(t(df[df$turn==1,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")])+c(Aggrogearlist[1],Defendergearlist[2],Aggrogearlist[3],Defendergearlist[4],Aggrogearlist[5],Defendergearlist[6]))
+  df[df$turn==2,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")]<-t(t(df[df$turn==2,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")])+c(Defendergearlist[1],Aggrogearlist[2],Defendergearlist[3],Aggrogearlist[4],Defendergearlist[5],Aggrogearlist[6]))
+  
+  return(df)}
+#maybe i'll make it more complicated later but for now i've got to get it started.
+
+
+
 
 #just a bunch of data to compare rod7 to assayn during fights:
 
@@ -184,136 +317,3 @@ exp17<-handlegear(handletechnology(fixformation(currenttroops(currentmorale(Hero
 #c(273c,133,291,123,pa84c,160,222,143,pa70c,157,228,141,pa46,153,226,130,pa44,140,221,121,pa45,143,210)troopstart<-c(1904,1898)
 majordf<-rbind(exp1,exp2,exp3,exp4,exp5,exp6,exp7,exp8,exp9,exp10,exp11,exp12,exp13,exp14,exp15,exp16,exp17)
 rm(exp1,exp2,exp3,exp4,exp5,exp6,exp7,exp8,exp9,exp10,exp11,exp12,exp13,exp14,exp15,exp16,exp17)
-
-####Additional things that need to be fixed:
-#Some units don't have morale (eg: oenomaus)
-HeroDamageStats$isskill<-!is.na(HeroDamageStats$SkillName)
-#Sometimes morale is being calculated way wrong (There are cases of up to 646 morale...)
-
-
-fixformation<-function(df){
-  df$oform<-as.character(df$oform)
-  df$dform<-as.character(df$dform)
-  df$oform[df$turn==1]<-df$oform[1]
-  df$dform[df$turn==1]<-df$dform[1]
-  df$oform[df$turn==2]<-df$dform[1]
-  df$dform[df$turn==2]<-df$oform[1]
-  return(df)  }
-#things that aren't relevant from MergedFinalOutput are removed and put into HeroDamageStats
-#derive current troops
-HeroStats<-function(df){
-  #Don't want any extraneous columns merged in from HeroDamageStats...Just the right ones
-  #also want it to be able to handle 2 diff guys!
-  #don't really care that it's going to fail on awakenings though.
-  df<-cbind(df,HeroDamageStats[c(rep(grep(df$OffName[1],HeroDamageStats$DispName)[1],length(df$dam))),c(2,3,4,8,9,10,11,12,13,14,15,16,18,19,20,21,22,23)])
-  df$oLeaderShip<-df$LeaderShip
-  df$oBrave<-df$Brave
-  df$oIntellect<-df$Intellect
-  df$dLeaderShip<-df$LeaderShip
-  df$dBrave<-df$Brave
-  df$dIntellect<-df$Intellect
-  #start by using the offensive hero's stats for everything
-  df[colnames(HeroDamageStats[c(2,3,4,8,9,10,11,13,15,18,20,22)])][df$turn==2,]<-HeroDamageStats[grep(df$DefName[1],HeroDamageStats$DispName)[1],c(2,3,4,8,9,10,11,13,15,18,20,22)]
-  #set the defensive stats
-  df$oLeaderShip[df$turn==2]<-df$LeaderShip[df$turn==2]
-  df$oBrave[df$turn==2]<-df$Brave[df$turn==2]
-  df$oIntellect[df$turn==2]<-df$Intellect[df$turn==2] #sets the offensive stats properly
-  df$dLeaderShip[df$turn==1]<-df$LeaderShip[df$turn==2][1]
-  df$dBrave[df$turn==1]<-df$Brave[df$turn==2][1]
-  df$dIntellect[df$turn==1]<-df$Intellect[df$turn==2][1]
-  #set the offensive stats to the defensive hero's off stats if turn==2
-  df[colnames(HeroDamageStats[c(2,3,4,8,12,14,16,19,21,23)])][df$turn==1,]<-HeroDamageStats[grep(df$DefName[1],HeroDamageStats$DispName)[1],c(2,3,4,8,12,14,16,19,21,23)]
-  #set the defensive stats to the defensive hero's def stats if turn==1
-    
-  return(df)}
-currenttroops<-function(df,weird=c(0,0)){
-  #troopsstartatmaxtroops barring anything weird
-  dtroopcurrent<-df$dtroopmax-weird[1]
-  otroopcurrent<-df$otroopmax-weird[2]
-  for(I in 2:length(df$dam)){
-    if(df$turn[(I-1)]==1){
-      dtroopcurrent[I]<-dtroopcurrent[I-1]-df$dam[I-1]
-      otroopcurrent[I]<-otroopcurrent[I-1]
-    }#then remove troops from defense and copy previous offense
-    if(df$turn[(I-1)]==2){
-      dtroopcurrent[I]<-dtroopcurrent[I-1]
-      otroopcurrent[I]<-otroopcurrent[I-1]-df$dam[I-1]
-    }
-  }
-  df$otroopcurrent<-otroopcurrent
-  df$dtroopcurrent<-dtroopcurrent
-  df$otroopcurrent[df$turn==2]<-dtroopcurrent[df$turn==2]
-  df$dtroopcurrent[df$turn==2]<-otroopcurrent[df$turn==2]
-  return(df)}
-#this properly separates "D" and "O" the way i would like for modeling purposes.
-currentmorale<-function(df){
-  #moralestarts at 0
-  moraleone<-rep(0,length(df$dam))
-  moraletwo<-rep(0,length(df$dam))
-  for(I in 2:length(df$dam)){
-    if(df$skill[I-1]==0){
-      if(df$retal[I-1]!=1){
-        moraletwo[I]<-moraletwo[I-1]+34
-        moraleone[I]<-moraleone[I-1]+34
-      }
-      else{moraleone[I]<-moraleone[I-1]
-           moraletwo[I]<-moraletwo[I-1]}
-      #raise morale for players (both get morale on hits - if they have it, and the lack of it is not yet implemented/considered)
-    } #no skill, morale will go up somewhere (barring evades which i am not considering yet)
-    if(df$skill[I-1]==1){
-      if(df$turn[I-1]==1){moraleone[I]<-0;moraletwo[I]<-moraletwo[I-1]}
-      if(df$turn[I-1]==2){moraletwo[I]<-0;moraleone[I]<-moraleone[I-1]}
-    }
-  }
-#if(is.na(df$SkillName[turn==1])){moraleone<-0}
-#if(is.na(df$SkillName[turn==2])){moraletwo<-0}
-#Some things don't have skills, but...I don't have a good way to 
-  df$omorale<-moraleone
-  df$omorale[df$turn==2]<-moraletwo[df$turn==2]
-  df$dmorale<-moraletwo
-  df$dmorale[df$turn==1]<-moraleone[df$turn==1]
-  return(df)}
-#derive current morale
-handletechnology<-function(df,techlist,dtechlist){
-  df$DamageReduction<-0
-  df$NormalAttack[df$turn==1]<-df$NormalAttack[df$turn==1]+(10*techlist[1])
-  df$NormalDefence[df$turn==2]<-df$NormalDefence[df$turn==2]+(7*techlist[4])
-  df$SkillAttack[df$turn==1]<-df$SkillAttack[df$turn==1]+(25*techlist[3])
-  df$SkillDefence[df$turn==2]<-df$SkillDefence[df$turn==2]+(15*techlist[5])
-  df$MagicAttack[df$turn==1]<-df$MagicAttack[df$turn==1]+(35*techlist[6])
-  df$MagicDefence[df$turn==2]<-df$MagicDefence[df$turn==2]+(16*techlist[7])
-  df$NormalAttack[df$turn==2]<-df$NormalAttack[df$turn==2]+(10*dtechlist[1])
-  df$NormalDefence[df$turn==1]<-df$NormalDefence[df$turn==1]+(7*dtechlist[4])
-  df$SkillAttack[df$turn==2]<-df$SkillAttack[df$turn==2]+(25*dtechlist[3])
-  df$SkillDefence[df$turn==1]<-df$SkillDefence[df$turn==1]+(15*dtechlist[5])
-  df$MagicAttack[df$turn==2]<-df$MagicAttack[df$turn==2]+(35*dtechlist[6])
-  df$MagicDefence[df$turn==1]<-df$MagicDefence[df$turn==1]+(16*dtechlist[7])
-  df$DamageReduction[df$turn==1]<-df$DamageReduction[df$turn==1]+(0.0018*dtechlist[11])
-  df$DamageReduction[df$turn==2]<-df$DamageReduction[df$turn==2]+(0.0018*techlist[11])
-  df$formbonus<-0
-  if(df$oform[df$turn==1][1]=="Siege"){
-    df$formbonus[df$turn==1]<-.0075*techlist[10]}
-  if(df$oform[df$turn==2][1]=="Siege"){
-    df$formbonus[df$turn==2]<-.0075*dtechlist[10]}
-  if(df$oform[df$turn==1][1]=="Wedge"){
-    df$formbonus[df$turn==1]<-.0075*techlist[11]}
-  if(df$oform[df$turn==2][1]=="Wedge"){
-    df$formbonus[df$turn==2]<-.0075*dtechlist[11]}
-  if(df$oform[df$turn==1][1]=="Snake"){
-    df$formbonus[df$turn==1]<-.0075*techlist[14]}
-  if(df$oform[df$turn==2][1]=="Snake"){
-    df$formbonus[df$turn==2]<-.0075*dtechlist[14]}
-  if(df$oform[df$turn==1][1]=="Hexagon"){
-    df$formbonus[df$turn==1]<-.0075*techlist[16]}
-  if(df$oform[df$turn==2][1]=="Hexagon"){
-    df$formbonus[df$turn==2]<-.0075*dtechlist[16]}
-  return(df)}
-handlegear<-function(df,Aggrogearlist,Defendergearlist){
-  #input gearlists are simply:  Normal Atk bonus, Normal Defence Bonus, Skill atk bonus, Skill Def Bonus, Magic Atk Bonus, Mag Def Bonus
-df[df$turn==1,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")]<-t(t(df[df$turn==1,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")])+c(Aggrogearlist[1],Defendergearlist[2],Aggrogearlist[3],Defendergearlist[4],Aggrogearlist[5],Defendergearlist[6]))
-df[df$turn==2,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")]<-t(t(df[df$turn==2,c("NormalAttack","NormalDefence","SkillAttack","SkillDefence","MagicAttack","MagicDefence")])+c(Defendergearlist[1],Aggrogearlist[2],Defendergearlist[3],Aggrogearlist[4],Defendergearlist[5],Aggrogearlist[6]))
-
-return(df)}
-  #maybe i'll make it more complicated later but for now i've got to get it started.
-  
-  
